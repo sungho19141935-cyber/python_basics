@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+.venv/
+chapter23_expense_tracker/data/*.csv
