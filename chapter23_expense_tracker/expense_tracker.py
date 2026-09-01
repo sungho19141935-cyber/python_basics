@@ -1,3 +1,4 @@
+
 import csv
 from pathlib import Path
 
@@ -126,3 +127,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    import pandas as pd
+
+    df = pd.read_csv(FILE_PATH)
+    print("전체 지출:", df["amount"].sum())
+    print(df.groupby("category")["amount"].sum())
