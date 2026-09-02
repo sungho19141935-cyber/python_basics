@@ -656,7 +656,7 @@ https://github.com/<sungho19141935@gmail.com>/<https://github.com/sungho19141935
 내 실제 제출 URL:
 
 ```text
-
+https://github.com/sungho19141935-cyber/python_basics/tree/main/assignments/chapter01_practice
 ```
 
 > LMS에는 위 **본인 저장소의 `chapter01_answer.md` 파일 URL 하나**를 제출합니다.
