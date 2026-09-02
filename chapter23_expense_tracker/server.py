@@ -87,7 +87,7 @@ class Handler(BaseHTTPRequestHandler):
         expense_id = self._expense_id_from_path()
         if expense_id is None:
             self.send_error(404)
-            return
+            return 
         try:
             expense = parse_expense_payload(self._read_json_body())
         except (ValueError, TypeError):
