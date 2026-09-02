@@ -3,3 +3,4 @@ __pycache__/
 .venv/
 chapter23_expense_tracker/data/*.csv
 chapter23_expense_tracker/.env
+ 
