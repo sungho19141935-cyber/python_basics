@@ -1,41 +1,13 @@
-import csv
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
+import db
+
 BASE_DIR = Path(__file__).resolve().parent
-CSV_PATH = BASE_DIR / "data" / "expenses.csv"
 HTML_PATH = BASE_DIR / "expense_ledger.html"
-FIELDNAMES = ["date", "category", "description", "amount"]
 PORT = 5050
-
-
-def read_expenses():
-    if not CSV_PATH.exists():
-        return []
-    rows = []
-    with open(CSV_PATH, "r", encoding="utf-8-sig", newline="") as f:
-        for row in csv.DictReader(f):
-            try:
-                amount = int(row["amount"])
-            except (KeyError, ValueError, TypeError):
-                continue
-            rows.append({
-                "date": row.get("date", ""),
-                "category": row.get("category", ""),
-                "description": row.get("description", ""),
-                "amount": amount,
-            })
-    return rows
-
-
-def write_expenses(rows):
-    CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(CSV_PATH, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
 
 
 def parse_expense_payload(data):
@@ -73,7 +45,7 @@ class Handler(BaseHTTPRequestHandler):
         raw = self.rfile.read(length) if length else b""
         return json.loads(raw.decode("utf-8")) if raw else {}
 
-    def _expense_index_from_path(self):
+    def _expense_id_from_path(self):
         parts = urlparse(self.path).path.strip("/").split("/")
         if len(parts) != 3 or parts[0] != "api" or parts[1] != "expenses":
             return None
@@ -87,7 +59,10 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/", "/index.html"):
             self._send_html()
         elif path == "/api/expenses":
-            self._send_json(read_expenses())
+            try:
+                self._send_json(db.list_expenses())
+            except Exception as exc:
+                self._send_json({"error": str(exc)}, 500)
         else:
             self.send_error(404)
 
@@ -102,14 +77,15 @@ class Handler(BaseHTTPRequestHandler):
         if expense is None:
             self._send_json({"error": "invalid payload"}, 400)
             return
-        rows = read_expenses()
-        rows.append(expense)
-        write_expenses(rows)
-        self._send_json(read_expenses())
+        try:
+            db.add_expense(**expense)
+            self._send_json(db.list_expenses())
+        except Exception as exc:
+            self._send_json({"error": str(exc)}, 500)
 
     def do_PUT(self):
-        idx = self._expense_index_from_path()
-        if idx is None:
+        expense_id = self._expense_id_from_path()
+        if expense_id is None:
             self.send_error(404)
             return
         try:
@@ -119,26 +95,30 @@ class Handler(BaseHTTPRequestHandler):
         if expense is None:
             self._send_json({"error": "invalid payload"}, 400)
             return
-        rows = read_expenses()
-        if idx < 0 or idx >= len(rows):
+        try:
+            updated = db.update_expense(expense_id, **expense)
+        except Exception as exc:
+            self._send_json({"error": str(exc)}, 500)
+            return
+        if updated is None:
             self._send_json({"error": "not found"}, 404)
             return
-        rows[idx] = expense
-        write_expenses(rows)
-        self._send_json(read_expenses())
+        self._send_json(db.list_expenses())
 
     def do_DELETE(self):
-        idx = self._expense_index_from_path()
-        if idx is None:
+        expense_id = self._expense_id_from_path()
+        if expense_id is None:
             self.send_error(404)
             return
-        rows = read_expenses()
-        if idx < 0 or idx >= len(rows):
+        try:
+            deleted = db.delete_expense(expense_id)
+        except Exception as exc:
+            self._send_json({"error": str(exc)}, 500)
+            return
+        if not deleted:
             self._send_json({"error": "not found"}, 404)
             return
-        rows.pop(idx)
-        write_expenses(rows)
-        self._send_json(read_expenses())
+        self._send_json(db.list_expenses())
 
 
 def main():
