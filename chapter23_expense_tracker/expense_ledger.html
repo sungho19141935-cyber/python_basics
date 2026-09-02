@@ -243,7 +243,6 @@ button{font:inherit}
 
 .trend{display:flex; align-items:flex-end; gap:16px; height:200px; margin-top:4px}
 .trend-col{flex:1; display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:8px}
-.trend-val{font-weight:500; font-size:13px; text-align:center; opacity:.5}
 .trend-bar{width:100%; border-radius:10px 10px 4px 4px; background:var(--soft-trend-fill)}
 .trend-bar.cur{background:var(--color-accent)}
 .trend-label{text-align:center; font-size:12.5px; opacity:.45}
@@ -260,8 +259,54 @@ button{font:inherit}
 .cal-day-num{font-size:9.5px; font-weight:500; opacity:.5}
 .cal-cell.has-spend .cal-day-num{opacity:.9; color:var(--soft-card)}
 .cal-cell.today{box-shadow:0 0 0 1.5px var(--color-accent) inset}
+.cal-cell.has-spend{cursor:pointer; transition:transform .12s ease, filter .12s ease}
+.cal-cell.has-spend:hover{transform:scale(1.08); filter:brightness(1.08)}
+.cal-cell.has-spend:active{transform:scale(.97)}
+
+.day-modal-backdrop{
+  position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+  padding:20px; background:color-mix(in srgb, var(--color-text) 45%, transparent);
+  animation:fadeIn .15s ease both;
+}
+.day-modal{
+  width:min(420px,100%); max-height:80vh; overflow-y:auto; background:var(--soft-card);
+  border-radius:18px; padding:26px 28px; box-shadow:0 12px 32px color-mix(in srgb, var(--color-text) 22%, transparent);
+  animation:fadeInUp .2s ease both;
+}
+.day-modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px}
+.day-modal-title{font-weight:600; font-size:18px}
+.day-modal-close{
+  width:30px; height:30px; border:none; border-radius:999px; background:var(--soft-hair);
+  color:var(--color-text); cursor:pointer; font-size:15px; line-height:1;
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+}
+.day-modal-close:hover{background:color-mix(in srgb, var(--color-text) 12%, transparent)}
+.day-modal-row{display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--soft-line)}
+.day-modal-row:last-child{border-bottom:none}
+.day-modal-cat{
+  width:68px; flex:0 0 68px; text-align:center; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap;
+}
+.day-modal-desc{flex:1; font-size:14px; min-width:0}
+.day-modal-amt{
+  width:88px; flex:0 0 88px; text-align:right;
+  font-weight:500; font-size:15px; white-space:nowrap;
+}
+.day-modal-total{
+  display:flex; justify-content:space-between; align-items:baseline; margin-top:14px; padding-top:14px;
+  border-top:1px solid var(--soft-line); font-weight:600; font-size:16px;
+}
 
 .list-head{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px}
+.list-toggle{
+  display:flex; align-items:center; gap:8px; background:transparent; border:none;
+  padding:2px 0; margin:0; cursor:pointer; color:inherit;
+}
+.list-toggle-chev{
+  display:inline-flex; font-size:11px; opacity:.5; transition:transform .2s ease;
+}
+.list-toggle[aria-expanded="true"] .list-toggle-chev{transform:rotate(90deg)}
+#listBody{margin-top:14px}
 .row-list{display:flex; flex-direction:column}
 .exp-row{display:flex; align-items:center; gap:16px; padding:13px 4px; border-bottom:1px solid var(--soft-line)}
 .exp-row:last-child{border-bottom:none}
@@ -269,7 +314,6 @@ button{font:inherit}
 .exp-cat{width:74px; flex:0 0 74px; text-align:center; font-size:12.5px; padding:4px 6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .exp-desc{flex:1; font-size:14px; min-width:0}
 .exp-amt{font-weight:500; font-size:16px; white-space:nowrap}
-.exp-amt.big{color:var(--color-accent-700)}
 .exp-actions{display:flex; gap:4px; flex:0 0 auto}
 .exp-act{
   width:26px; height:26px; padding:0; border:none; border-radius:999px;
@@ -285,6 +329,43 @@ button{font:inherit}
 .form-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-4); align-items:end}
 .form-actions{grid-column:1 / -1; display:flex; gap:10px; align-items:center}
 .form-error{font-size:12.5px; color:var(--soft-danger); min-height:1.4em}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Motion — hover/press feedback + entrance animations for freshly-rendered
+   elements. Guarded by prefers-reduced-motion below.
+   ══════════════════════════════════════════════════════════════════════ */
+.card{transition:box-shadow .2s ease, transform .2s ease}
+.card:hover{box-shadow:0 4px 16px color-mix(in srgb, var(--color-text) 8%, transparent); transform:translateY(-1px)}
+.btn{transition:background .15s ease, transform .1s ease}
+.btn:active{transform:scale(.96)}
+.tab{transition:background .15s ease, transform .1s ease}
+.tab:active{transform:scale(.96)}
+.exp-act{transition:opacity .15s ease, background .15s ease, transform .1s ease}
+.exp-act:active{transform:scale(.85)}
+
+.bar-fill{transform-origin:left; animation:growX .7s cubic-bezier(.16,1,.3,1) both}
+.trend-bar{transform-origin:bottom; animation:growY .6s cubic-bezier(.16,1,.3,1) both}
+@keyframes growX{from{transform:scaleX(0)} to{transform:scaleX(1)}}
+@keyframes growY{from{transform:scaleY(0)} to{transform:scaleY(1)}}
+
+.exp-row, .cal-cell.has-spend{animation:fadeInUp .35s ease both}
+.exp-row:nth-child(1){animation-delay:.02s} .exp-row:nth-child(2){animation-delay:.04s}
+.exp-row:nth-child(3){animation-delay:.06s} .exp-row:nth-child(4){animation-delay:.08s}
+.exp-row:nth-child(5){animation-delay:.10s} .exp-row:nth-child(6){animation-delay:.12s}
+.exp-row:nth-child(7){animation-delay:.14s} .exp-row:nth-child(8){animation-delay:.16s}
+.exp-row:nth-child(n+9){animation-delay:.18s}
+@keyframes fadeInUp{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:translateY(0)}}
+
+.total-num{transition:opacity .15s ease}
+.card, .split > .card{animation:fadeIn .3s ease both}
+@keyframes fadeIn{from{opacity:0} to{opacity:1}}
+
+@media (prefers-reduced-motion: reduce){
+  .card, .btn, .tab, .exp-act, .bar-fill, .trend-bar, .exp-row, .cal-cell.has-spend{
+    animation:none !important; transition:none !important;
+  }
+  .card:hover{transform:none}
+}
 
 @media (max-width:900px){
   .split{grid-template-columns:1fr}
@@ -375,11 +456,16 @@ button{font:inherit}
 
   <div class="card card-tight">
     <div class="list-head">
-      <div class="label">내역 목록</div>
+      <button type="button" class="list-toggle" id="listToggle" aria-expanded="false">
+        <span class="list-toggle-chev" id="listToggleChev">▸</span>
+        <span class="label" style="margin:0">내역 목록</span>
+      </button>
       <span class="total-count tabular" id="listMeta">0건</span>
     </div>
-    <div class="row-list" id="rows"></div>
-    <div class="empty-note" id="listEmpty" hidden>표시할 내역이 없습니다.</div>
+    <div id="listBody" hidden>
+      <div class="row-list" id="rows"></div>
+      <div class="empty-note" id="listEmpty" hidden>표시할 내역이 없습니다.</div>
+    </div>
   </div>
 </div>
 
@@ -388,6 +474,25 @@ button{font:inherit}
   "use strict";
   var API = "/api/expenses";
   var fmt = function(n){ return Math.round(n).toLocaleString("en-US"); };
+
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var listCollapsed = true;
+  var lastTotal = null;
+  function animateTotal(el, to){
+    var from = lastTotal === null ? to : lastTotal;
+    lastTotal = to;
+    if(reduceMotion || from === to){ el.textContent = fmt(to); return; }
+    var start = performance.now();
+    var duration = 500;
+    function step(now){
+      var t = Math.min(1, (now - start) / duration);
+      var eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = fmt(from + (to - from) * eased);
+      if(t < 1) requestAnimationFrame(step);
+      else el.textContent = fmt(to);
+    }
+    requestAnimationFrame(step);
+  }
 
   function fetchExpenses(){
     return fetch(API).then(function(r){
@@ -481,13 +586,11 @@ button{font:inherit}
     keys.forEach(function(k, i){
       var col = document.createElement("div");
       col.className = "trend-col";
-      var val = document.createElement("div");
-      val.className = "trend-val tabular";
-      val.textContent = monthTotals[i] >= 10000 ? Math.round(monthTotals[i]/10000) + "만" : fmt(monthTotals[i]);
       var bar = document.createElement("div");
       bar.className = "trend-bar" + (k === state.month ? " cur" : "");
       bar.style.height = Math.max(6, (monthTotals[i] / mMax) * 100) + "%";
-      col.appendChild(val); col.appendChild(bar);
+      bar.title = k.replace("-"," / ") + " · " + fmt(monthTotals[i]) + "원";
+      col.appendChild(bar);
       trendEl.appendChild(col);
       var labCol = document.createElement("div");
       labCol.className = "trend-col";
@@ -545,7 +648,11 @@ button{font:inherit}
         numEl.textContent = String(day);
         cell.appendChild(numEl);
         if(amt > 0){
+          var cellDate = state.month + "-" + String(day).padStart(2,"0");
           cell.title = day + "일 · " + fmt(amt) + "원";
+          cell.addEventListener("click", function(d){
+            return function(){ showDayModal(d, mine); };
+          }(cellDate));
         }
         calEl.appendChild(cell);
       }
@@ -554,7 +661,7 @@ button{font:inherit}
     }
 
     document.getElementById("monthLabel").textContent = keys.length ? (parseInt(state.month.slice(5),10) + "월 합계") : "이번 달 합계";
-    document.getElementById("totalNum").textContent = fmt(total);
+    animateTotal(document.getElementById("totalNum"), total);
     document.getElementById("countStr").textContent = mine.length + "건 · 하루 평균 " + fmt(mine.length ? Math.round(total/dayCount/100)*100 : 0) + "원";
     var deltaEl = document.getElementById("deltaStr");
     if(prev === null){
@@ -659,15 +766,19 @@ button{font:inherit}
     var listed = mine.slice().reverse();
     document.getElementById("listEmpty").hidden = listed.length > 0;
     document.getElementById("listMeta").textContent = listed.length + "건";
+    var listMaxAmount = mine.length ? Math.max.apply(null, mine.map(function(r){ return r.amount; })) : 1;
     listed.forEach(function(r){
-      var isBig = big && r.amount === big.amount && bigShare >= 30;
+      var intensity = Math.max(0, Math.min(1, r.amount / listMaxAmount));
       var row = document.createElement("div");
       row.className = "exp-row";
+      row.style.background = "linear-gradient(90deg, color-mix(in srgb, var(--soft-danger) " +
+        Math.round(intensity * 30) + "%, transparent), transparent 75%)";
       row.innerHTML =
         "<span class=\"exp-date tabular\">" + escapeHTML(r.date.slice(5)) + "</span>" +
         "<span class=\"exp-cat tag tag-neutral\">" + escapeHTML(r.category) + "</span>" +
         "<span class=\"exp-desc\">" + escapeHTML(r.description) + "</span>" +
-        "<span class=\"exp-amt tabular" + (isBig ? " big" : "") + "\">" + fmt(r.amount) + "원</span>" +
+        "<span class=\"exp-amt tabular\" style=\"color:color-mix(in srgb, var(--soft-danger) " +
+          Math.round(intensity * 90) + "%, var(--color-text))\">" + fmt(r.amount) + "원</span>" +
         "<span class=\"exp-actions\">" +
           "<button type=\"button\" class=\"exp-act\" data-act=\"edit\" title=\"수정\">✎</button>" +
           "<button type=\"button\" class=\"exp-act\" data-act=\"del\" title=\"삭제\">×</button>" +
@@ -677,7 +788,11 @@ button{font:inherit}
       rowsEl.appendChild(row);
     });
 
-    document.getElementById("statusText").textContent = "expenses.csv · " + rows.length + "건";
+    document.getElementById("listBody").hidden = listCollapsed;
+    var listToggleEl = document.getElementById("listToggle");
+    listToggleEl.setAttribute("aria-expanded", String(!listCollapsed));
+
+    document.getElementById("statusText").textContent = "expense_tracker DB · " + rows.length + "건";
   }
 
   function escapeHTML(s){
@@ -734,6 +849,62 @@ button{font:inherit}
       .catch(function(){ alert("삭제에 실패했습니다. 서버(server.py)가 실행 중인지 확인해 주세요."); });
   }
 
+  function closeDayModal(){
+    var el = document.getElementById("dayModalBackdrop");
+    if(el) el.remove();
+    document.removeEventListener("keydown", onDayModalKeydown);
+  }
+
+  function onDayModalKeydown(ev){
+    if(ev.key === "Escape") closeDayModal();
+  }
+
+  function showDayModal(dateStr, monthRows){
+    closeDayModal();
+    var dayRows = monthRows.filter(function(r){ return r.date === dateStr; });
+    var total = dayRows.reduce(function(s,r){ return s + r.amount; }, 0);
+    var day = parseInt(dateStr.slice(8),10);
+    var month = parseInt(dateStr.slice(5,7),10);
+
+    var backdrop = document.createElement("div");
+    backdrop.className = "day-modal-backdrop";
+    backdrop.id = "dayModalBackdrop";
+    backdrop.addEventListener("click", function(ev){ if(ev.target === backdrop) closeDayModal(); });
+
+    var modal = document.createElement("div");
+    modal.className = "day-modal";
+
+    var head = document.createElement("div");
+    head.className = "day-modal-head";
+    head.innerHTML = "<span class=\"day-modal-title\">" + month + "월 " + day + "일</span>";
+    var closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "day-modal-close";
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", closeDayModal);
+    head.appendChild(closeBtn);
+    modal.appendChild(head);
+
+    dayRows.forEach(function(r){
+      var row = document.createElement("div");
+      row.className = "day-modal-row";
+      row.innerHTML =
+        "<span class=\"day-modal-cat tag tag-neutral\">" + escapeHTML(r.category) + "</span>" +
+        "<span class=\"day-modal-desc\">" + escapeHTML(r.description) + "</span>" +
+        "<span class=\"day-modal-amt tabular\">" + fmt(r.amount) + "원</span>";
+      modal.appendChild(row);
+    });
+
+    var totalRow = document.createElement("div");
+    totalRow.className = "day-modal-total";
+    totalRow.innerHTML = "<span>합계</span><span class=\"tabular\">" + fmt(total) + "원</span>";
+    modal.appendChild(totalRow);
+
+    backdrop.appendChild(modal);
+    document.body.appendChild(backdrop);
+    document.addEventListener("keydown", onDayModalKeydown);
+  }
+
   addToggle.addEventListener("click", function(){
     if(addForm.classList.contains("open")){
       closeForm();
@@ -747,6 +918,12 @@ button{font:inherit}
     dateField.focus();
   });
   document.getElementById("cancelAdd").addEventListener("click", closeForm);
+
+  document.getElementById("listToggle").addEventListener("click", function(){
+    listCollapsed = !listCollapsed;
+    document.getElementById("listBody").hidden = listCollapsed;
+    this.setAttribute("aria-expanded", String(!listCollapsed));
+  });
 
   addForm.addEventListener("submit", function(ev){
     ev.preventDefault();
