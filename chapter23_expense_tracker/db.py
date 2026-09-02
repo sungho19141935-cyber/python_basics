@@ -42,7 +42,7 @@ def add_expense(date, category, description, amount):
     try:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
-                """
+                """ 
                 INSERT INTO expenses (date, category, description, amount)
                 VALUES (%s, %s, %s, %s)
                 RETURNING id, date, category, description, amount
