@@ -30,5 +30,5 @@ def main():
     print(f"{added}건을 CSV에서 DB로 이관했습니다.")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
