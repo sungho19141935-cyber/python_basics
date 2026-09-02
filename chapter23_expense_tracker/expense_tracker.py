@@ -59,7 +59,7 @@ def calculate_by_category(expenses):  # 카테고리별로 amount를 누적한 �
     category_totals = {}
     for expense in expenses:
         category = expense["category"]
-        amount = expense["amount"]
+        amount = expense["amount"] 
         if category in category_totals:
             category_totals[category] += amount
         else:
