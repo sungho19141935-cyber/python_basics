@@ -122,8 +122,9 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    with ThreadingHTTPServer(("127.0.0.1", PORT), Handler) as httpd:
+    with ThreadingHTTPServer(("0.0.0.0", PORT), Handler) as httpd:
         print(f"http://localhost:{PORT} 에서 실행 중입니다. Ctrl+C로 종료하세요.")
+        print("같은 와이파이의 다른 기기에서는 이 PC의 IP 주소로 접속하세요.")
         httpd.serve_forever()
 
 
